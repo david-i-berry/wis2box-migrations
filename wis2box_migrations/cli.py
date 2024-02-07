@@ -48,7 +48,7 @@ def cli():
 
 @click.command("run")
 @click.pass_context
-@click.argument("version", type=click.STRING)
+@click.argument("version")
 def run(ctx, version):
     # get version, replace periods with underscore
     v = version.replace(".", "_")
