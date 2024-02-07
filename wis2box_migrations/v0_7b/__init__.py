@@ -96,11 +96,11 @@ def migrate():
 
     # now write data to file
     with open(f"{station_file}", 'w') as fh:
-    columns = list(stations[0].keys())
-    writer = csv.DictWriter(fh, fieldnames=columns)
-    writer.writeheader()
-    for station in stations:
-        writer.writerow(station)
+        columns = list(stations[0].keys())
+        writer = csv.DictWriter(fh, fieldnames=columns)
+        writer.writeheader()
+        for station in stations:
+            writer.writerow(station)
 
 
     # now migrate ES data
