@@ -97,7 +97,7 @@ def migrate(dryrun: bool = False):
             print(','.join(map(str, station.values())))
     else:
         # now write data to file
-        with open(f"{station_file}", 'w') as fh:
+        with open(f"{station_file}.v1.0b7", 'w') as fh:
             columns = list(stations[0].keys())
             writer = csv.DictWriter(fh, fieldnames=columns)
             writer.writeheader()
