@@ -47,11 +47,11 @@ def cli():
 
 
 @click.command("run")
-@click.pass_context
 @click.argument("version", nargs=1)
-def run(ctx, version):
+def run(version):
     # get version, replace periods with underscore
-    v = version.replace(".", "_")
+    #v = version.replace(".", "_")
+    v = "v0_7b"
     # load migration runner
     m = importlib.import_module(f"wis2box_migrations.{v}")
     migrate = getattr(m, "migrate")
