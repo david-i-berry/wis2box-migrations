@@ -30,7 +30,7 @@ from elasticsearch.helpers import bulk
 
 LOGGER = logging.getLogger(__name__)
 
-DATADIR = os.getenv("WIS2BOX_HOST_DATADIR")
+DATADIR = os.getenv("WIS2BOX_DATADIR")
 THISDIR = os.path.dirname(os.path.realpath(__file__))
 
 es_api = os.getenv("WIS2BOX_API_BACKEND_URL")
