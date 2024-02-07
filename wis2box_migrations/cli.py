@@ -22,7 +22,7 @@ import importlib
 import logging
 
 import click
-
+from wis2box_migrations import __version__
 LOGGER = logging.getLogger(__name__)
 
 def cli_option_verbosity(f):
@@ -34,7 +34,7 @@ def cli_option_verbosity(f):
         return True
 
     return click.option("--verbosity", "-v",
-                        type=click.Choice(logging_options),
+                        type=click.Choice(options),
                         help="Verbosity",
                         callback=callback)(f)
 
@@ -51,7 +51,7 @@ def run(version):
     # get version, replace periods with underscore
     v = version.replace(".","_")
     # load migration runner
-    m = importlib.import_module(f"migrations.{v}")
+    m = importlib.import_module(f"wis2box_migrations.{v}")
     migrate = getattr(m, "migrate")
     # now run migration
     migrate()
