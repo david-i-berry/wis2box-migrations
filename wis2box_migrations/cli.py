@@ -25,18 +25,20 @@ import click
 from wis2box_migrations import __version__
 LOGGER = logging.getLogger(__name__)
 
+
 def cli_option_verbosity(f):
-    options = ["DEBUG","INFO","WARNING","ERROR"]
+    options = ["DEBUG", "INFO", "WARNING", "ERROR"]
 
     def callback(ctx, param, value):
         if value is not None:
-            LOGGER.setlevel(getattr(logging,value))
+            LOGGER.setlevel(getattr(logging, value))
         return True
 
     return click.option("--verbosity", "-v",
                         type=click.Choice(options),
                         help="Verbosity",
                         callback=callback)(f)
+
 
 @click.group()
 @click.version_option(version=__version__)
@@ -47,13 +49,14 @@ def cli():
 @click.command("run")
 @click.pass_context
 @click.argument("version", type=click.STRING)
-def run(version):
+def run(ctx, version):
     # get version, replace periods with underscore
-    v = version.replace(".","_")
+    v = version.replace(".", "_")
     # load migration runner
     m = importlib.import_module(f"wis2box_migrations.{v}")
     migrate = getattr(m, "migrate")
     # now run migration
     migrate()
+
 
 cli.add_command(run)
