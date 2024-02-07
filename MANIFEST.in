@@ -1,2 +1,2 @@
 include LICENSE README.md requirements.txt
-recursive-include migrations *.json
+recursive-include wis2box_migrations *.json
