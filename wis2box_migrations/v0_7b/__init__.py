@@ -30,20 +30,16 @@ from elasticsearch.helpers import bulk
 
 LOGGER = logging.getLogger(__name__)
 
-
 DATADIR = os.getenv("WIS2BOX_HOST_DATADIR")
 THISDIR = os.path.dirname(os.path.realpath(__file__))
 
-
-code_maps = {}
-codelists = ('facility_type','territory_name','wmo_region')
 es_api = os.getenv("WIS2BOX_API_BACKEND_URL")
 es_index = "stations"
-station_file = Path(DATADIR) / "metadata" / "station_list.csv"
+station_file = Path(DATADIR) / "metadata" / "station" / "station_list.csv"
 
 
 def apply_mapping(value, mapping):
-    return mapping.get(value, value)  # use existing value as default in case no match found
+    return mapping.get(value, value)  # noqa use existing value as default in case no match found
 
 
 def apply_mapping_elastic(records, codelists, code_maps):
@@ -55,7 +51,7 @@ def apply_mapping_elastic(records, codelists, code_maps):
             if codelist in record['properties']:
                 record['properties'][codelist] = code_maps[codelist].get(
                     record['properties'][codelist],
-                    record['properties'][codelist]  # use existing value as default in case no match found
+                    record['properties'][codelist]  # noqa use existing value as default in case no match found
                 )
             else:
                 print(f"No matching element found {codelist}")
@@ -70,9 +66,10 @@ def apply_mapping_elastic(records, codelists, code_maps):
     return updates
 
 
-def migrate():
+def migrate(dryrun: bool = False):
     # first load code lists / mappings
-
+    code_maps = {}
+    codelists = ('facility_type', 'territory_name', 'wmo_region')
     for codelist in codelists:
         p = Path(THISDIR)
         mapping_file = p / f"{codelist}.json"
@@ -94,29 +91,40 @@ def migrate():
                     pass
             stations.append(row)
 
-    # now write data to file
-    with open(f"{station_file}", 'w') as fh:
-        columns = list(stations[0].keys())
-        writer = csv.DictWriter(fh, fieldnames=columns)
-        writer.writeheader()
+    if dryrun:
+        print(','.join(map(str, stations[0].keys())))
         for station in stations:
-            writer.writerow(station)
-
+            print(','.join(map(str, station.values())))
+    else:
+        # now write data to file
+        with open(f"{station_file}", 'w') as fh:
+            columns = list(stations[0].keys())
+            writer = csv.DictWriter(fh, fieldnames=columns)
+            writer.writeheader()
+            for station in stations:
+                writer.writerow(station)
 
     # now migrate ES data
     # Get elastic search connection
     es = Elasticsearch(es_api)
-    more_data = True # flag to keep looping until all data processed
-    batch_size = 100 # process in batch sizes of 100
-    cursor = 0 # cursor to keep track of position
+    more_data = True  # flag to keep looping until all data processed
+    batch_size = 100  # process in batch sizes of 100
+    cursor = 0  # cursor to keep track of position
 
     # now loop until all data processed
     while more_data:
-        res = es.search(index=es_index, query={'match_all': {}}, size=batch_size, from_ = cursor)
+        res = es.search(index=es_index,
+                        query={'match_all': {}},
+                        size=batch_size,
+                        from_=cursor)
+
         nhits = len(res['hits']['hits'])
         cursor += batch_size
         if nhits < batch_size:
             more_data = False
         stations = res['hits']['hits']
         updates = apply_mapping_elastic(stations, codelists, code_maps)
-        bulk(es, updates)
+        if dryrun:
+            print(updates)
+        else:
+            bulk(es, updates)
