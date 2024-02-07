@@ -73,7 +73,7 @@ if (os.path.exists('MANIFEST')):
 
 
 setup(
-    name='migrations',
+    name='wis2box_migrations',
     version=get_package_version(),
     description=DESCRIPTION,
     long_description=read('README.md'),
@@ -91,7 +91,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'migrations=migrations.cli:cli'
+            'wis2box_migrations=wis2box_migrations.cli:cli'
         ]
     },
     classifiers=[
