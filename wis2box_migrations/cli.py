@@ -54,7 +54,7 @@ def run(wis2box_version, dryrun):
     # get version, replace periods with underscore
     v = wis2box_version.replace(".", "_")
     # load migration runner
-    m = importlib.import_module(f"wis2box_migrations.{v}")
+    m = importlib.import_module(f"wis2box_migrations.migrations.{v}")
     migrate = getattr(m, "migrate")
     # now run migration
     migrate(dryrun)
